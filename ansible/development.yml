@@ -1,0 +1,15 @@
+---
+- name: Development
+  hosts: development
+  sudo: true
+  vars_files:
+      - vars/main.yml
+  roles:
+    - { role: "common" }
+    - { role: "webserver",
+        servers: [
+          { name: "chronik", host: "chronik-hennstedt.de", port: "80", devmachine: "true" }
+        ]
+      }
+    - { role: geerlingguy.mysql }
+    - { role: "development" }

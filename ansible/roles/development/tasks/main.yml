@@ -1,0 +1,7 @@
+---
+- name: PHP5 xdebug package
+  notify: "restart-webserver-php7-fpm"
+  apt: name="php-xdebug" state="present"
+
+- name: PHP5 xdebug script
+  copy: src="php/xdebug" dest="/usr/bin/xdebug" mode="ugo+x"

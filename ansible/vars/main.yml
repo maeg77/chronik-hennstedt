@@ -1,0 +1,10 @@
+mysql_root_password: chronik
+mysql_databases:
+  - name: chronik
+    encoding: latin1
+    collation: latin1_general_ci
+mysql_users:
+  - name: chronik-user
+    host: "%"
+    password: chronik-user
+    priv: "chronik.*:ALL"

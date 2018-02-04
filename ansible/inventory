@@ -1,0 +1,2 @@
+[development]
+chronik-hennstedt.de ansible_connection=local

@@ -1,0 +1,45 @@
+---
+- name: Nginx package
+  apt: name="nginx" state="present"
+
+- name: Nginx default site removal
+  notify: "restart-webserver-nginx"
+  file: path="/etc/nginx/sites-enabled/default" state="absent"
+
+- name: Nginx FastCGI configuration
+  copy: src="fastcgi_params" dest="/etc/nginx"
+
+- name: Nginx site configuration
+  notify: "restart-webserver-nginx"
+  template:
+    src="nginx-site.conf.j2"
+    dest="/etc/nginx/sites-available/{{ item.name }}.conf"
+  with_items: "{{ servers }}"
+
+- name: Nginx site activation
+  notify: "restart-webserver-nginx"
+  file: path="/etc/nginx/sites-enabled/{{ item.name }}.conf" src="/etc/nginx/sites-available/{{ item.name }}.conf" state="link"
+  with_items: "{{ servers }}"
+
+- name: PHP5 package
+  apt: name="{{ item }}" state="present"
+  with_items:
+    - php7.0-fpm
+    - php-cli
+
+- name: PHP5 configuration
+  notify: "restart-webserver-php7-fpm"
+  template: src="{{ item.src }}" dest="{{ item.dest }}"
+  with_items:
+    - { src: "php.ini.j2", dest: "/etc/php/7.0/fpm/php.ini", php_memory_limit: 512M }
+    - { src: "php.ini.j2", dest: "/etc/php/7.0/cli/php.ini", php_memory_limit: 512M }
+
+- name: PHP5 modules
+  notify: "restart-webserver-php7-fpm"
+  apt: name="{{ item }}" state="present"
+  with_items:
+    - php7.0-curl
+    - php7.0-gd
+    - php-redis
+    - php-imagick
+    - php-pear

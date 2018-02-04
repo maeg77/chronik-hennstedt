@@ -1,0 +1,24 @@
+---
+- name: Update Apitude cache
+  apt: update_cache="yes"
+
+- name: Ant package
+  apt: name="ant" state="present"
+
+- name: Composer package
+  get_url:
+    url=https://getcomposer.org/composer.phar
+    dest=/usr/local/bin/composer
+    mode=0755
+    validate_certs=no
+
+- name: Curl package
+  apt: name="curl" state="present"
+
+- name: Git package
+  apt: name="git" state="present"
+
+- name: Filesystem setup
+  file: path="{{ item.path }}" state="{{ item.state }}" owner="{{ item.owner }}" group="{{ item.group }}" mode="{{ item.mode }}"
+  with_items:
+    - { path: "/opt/data", state: "directory", owner: "www-data", group: "www-data", mode: "ugo=rwx" }

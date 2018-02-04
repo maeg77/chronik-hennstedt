@@ -1,0 +1,3 @@
+---
+- name: "restart-development-selenium"
+  service: name="docker" state="restarted"

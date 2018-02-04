@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="chonik-hennstedt" default="build" basedir=".">
+    <property file="${basedir}/config/version.properties"/>
+    <property file="${basedir}/config/default.properties" />
+
+    <import>
+        <fileset dir="${ant-commons.path}/extensions">
+            <include name="*.xml" />
+        </fileset>
+    </import>
+
+    <extension-point name="build-cleanup" />
+    <extension-point name="build-prepare" />
+
+    <target name="dependencies">
+        <parallel threadCount="2">
+            <antcall target="composer:install"/>
+        </parallel>
+    </target>
+
+    <target name="build" depends="
+        build-cleanup,
+        build-prepare,
+        composer:install,
+        symfony:cache-clear-all
+    "/>
+
+    <target name="clean-build" depends="
+        build,
+        doctrine:database:drop,
+        doctrine:database:create
+    " />
+
+    <target name="phpunit" description="Run unit tests with PHPUnit">
+        <exec executable="php" dir="${basedir}" failonerror="true">
+            <arg value="./vendor/phpunit/phpunit/phpunit"/>
+            <arg value="-c"/>
+            <arg value="${basedir}/app/"/>
+        </exec>
+    </target>
+
+    <target name="phpunit-coverage" description="Run unit tests with PHPUnit and build code coverage">
+        <exec executable="php" dir="${basedir}" failonerror="true">
+            <arg value="./vendor/phpunit/phpunit/phpunit"/>
+            <arg value="-c"/>
+            <arg value="${basedir}/app/"/>
+            <arg value="--coverage-clover"/>
+            <arg value="clover.xml"/>
+            <arg value="--coverage-html"/>
+            <arg value="phpunit-coverage-html"/>
+        </exec>
+    </target>
+</project>

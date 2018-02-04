@@ -1,0 +1,47 @@
+server {
+    listen                  *:{{ item.port }};
+    server_name             {{ item.host }};
+
+    index                   app.php;
+
+    access_log              /var/log/nginx/{{ item.host }}.access.log;
+    error_log               /var/log/nginx/{{ item.host }}.error.log;
+
+    location @rewriteapp {
+        rewrite ^(.*)$ /app.php/$1 last ;
+    }
+
+    location / {
+        {% if item.devmachine is defined %}
+            root        /opt/app/web;
+        {% else %}
+            root        /var/www/vhosts/app.tld/releases/current/web;
+        {% endif %}
+
+        try_files   $uri @rewriteapp;
+        index       index.html index.htm index.php;
+    }
+
+    location ~ ^/(app|app_dev|app_test|config)\.php(/|$) {
+
+    {% if item.devmachine is defined %}
+        root        /opt/app/web;
+    {% else %}
+        root        /var/www/vhosts/app.tld/releases/current/web;
+    {% endif %}
+
+        fastcgi_split_path_info ^(.+\.php)(/.*)$;
+        include                 /etc/nginx/fastcgi_params;
+        fastcgi_pass            unix:/var/run/php/php7.0-fpm.sock;
+        fastcgi_buffers         16 16k;
+        fastcgi_buffer_size     32k;
+        fastcgi_param           SCRIPT_FILENAME $document_root/$fastcgi_script_name;
+    }
+
+    location /data {
+        alias                   /opt/data;
+        allow all ;
+    }
+
+    sendfile off;
+}
