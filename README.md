@@ -30,7 +30,7 @@ by running the following command:
 
 The project repository contains all source code and configuration for the local virtual machine.
 
-    git clone ssh://git@scm.hawdev.de:7999/spiel/playground.git
+    git clone https://github.com/maeg77/chronik-hennstedt.git
 
 ### Start the Engine
 
